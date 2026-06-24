@@ -13,6 +13,11 @@ Another big change is that `SimpleJson` is retired completely from the code base
 
 Finally, most of the interfaces are now gone.
 
+:::tip
+You can automate most of the changes below with the [Migration Assistant](/migration-assistant) — a set of Roslyn
+analyzers and code fixes that detect legacy APIs and rewrite them to their modern equivalents.
+:::
+
 ## Brief migration guide
 
 ### RestClient and options

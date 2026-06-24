@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <IsPackable>true</IsPackable>
+
+        <!--
+          RS1038: this assembly contains both analyzers and code fixes, so it references Microsoft.CodeAnalysis.Workspaces.
+          The analyzers themselves never touch Workspaces types (verified), and the code-fix providers are only loaded by
+          hosts (IDE, dotnet format) that always supply Workspaces, so shipping a single analyzer DLL is safe here.
+        -->
+        <NoWarn>$(NoWarn);RS1038</NoWarn>
+
+        <!-- Versioned independently from the RestSharp runtime package (which uses MinVer). -->
+        <MinVerSkip>true</MinVerSkip>
+        <Version>1.0.0-preview.1</Version>
+
+        <!-- Package metadata -->
+        <PackageId>RestSharp.MigrationAssistant</PackageId>
+        <Authors>.NET Foundation and Contributors</Authors>
+        <PackageProjectUrl>https://restsharp.dev</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/restsharp/RestSharp</RepositoryUrl>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <Description>Roslyn analyzers and code fixes that migrate legacy RestSharp (v106 and earlier) code to the modern RestSharp API.</Description>
+        <PackageTags>RestSharp;Roslyn;analyzer;codefix;migration;roslyn-analyzer</PackageTags>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <IncludeSymbols>false</IncludeSymbols>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+
+        <!-- Strong-name signing, consistent with the rest of the repository. -->
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../RestSharp.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Ship only the analyzer assembly, in the conventional analyzer package layout. -->
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Analyzer release tracking (clears RS2008). -->
+        <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+        <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="System.Collections.Immutable" />
+        <Using Include="Microsoft.CodeAnalysis" />
+        <Using Include="Microsoft.CodeAnalysis.CSharp" />
+        <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+    </ItemGroup>
+</Project>

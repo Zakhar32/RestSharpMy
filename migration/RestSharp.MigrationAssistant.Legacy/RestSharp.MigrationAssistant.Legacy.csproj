@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
+        <SignAssembly>false</SignAssembly>
+        <!-- This is a throwaway stand-in for the pre-v107 RestSharp public surface, used only so the
+             migration sample can compile as "legacy" code. It is never shipped. -->
+        <RootNamespace>RestSharp</RootNamespace>
+    </PropertyGroup>
+</Project>
