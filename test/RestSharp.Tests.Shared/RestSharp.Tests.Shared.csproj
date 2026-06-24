@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="WireMock.Net" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\RestSharp\RestSharp.csproj" />
+    </ItemGroup>
+</Project>

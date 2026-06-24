@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="$(RepoRoot)\src\RestSharp.Serializers.Xml\RestSharp.Serializers.Xml.csproj"/>
+        <ProjectReference Include="$(RepoRoot)\src\RestSharp\RestSharp.csproj"/>
+        <ProjectReference Include="..\RestSharp.Tests.Shared\RestSharp.Tests.Shared.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="Assets\Koala.jpg" CopyToOutputDirectory="PreserveNewest"/>
+        <None Update="Assets\TestFile.txt" CopyToOutputDirectory="PreserveNewest"/>
+        <None Update="Assets\KoalaÄÖäö.jpg" CopyToOutputDirectory="PreserveNewest"/>
+        <None Update="Assets\Teståæ.txt" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="HttpMultipartParser"/>
+        <PackageReference Include="Polly"/>
+        <PackageReference Include="PolySharp" PrivateAssets="All"/>
+        <PackageReference Include="WireMock.Net"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Using Include="WireMock"/>
+        <Using Include="WireMock.Server"/>
+        <Using Include="WireMock.RequestBuilders"/>
+        <Using Include="WireMock.ResponseBuilders"/>
+        <Using Include="System.Net"/>
+        <Using Include="RestSharp.Tests.Shared"/>
+        <Using Include="RestSharp.Tests.Shared.Server"/>
+    </ItemGroup>
+</Project>

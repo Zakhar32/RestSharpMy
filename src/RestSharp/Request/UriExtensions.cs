@@ -1,0 +1,83 @@
+//  Copyright (c) .NET Foundation and Contributors
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// 
+
+using RestSharp.Extensions;
+
+namespace RestSharp;
+
+static class UriExtensions {
+    public static Uri MergeBaseUrlAndResource(this Uri? baseUrl, string? resource) {
+        var assembled = resource;
+
+        if (assembled.IsNotEmpty() && assembled[0] == '/') assembled = assembled[1..];
+
+        if (baseUrl == null || baseUrl.AbsoluteUri.IsEmpty()) {
+            return assembled.IsNotEmpty()
+                ? new Uri(assembled)
+                : throw new ArgumentException("Both BaseUrl and Resource are empty", nameof(resource));
+        }
+
+        var usingBaseUri = baseUrl.AbsoluteUri[^1] == '/' || assembled.IsEmpty() ? baseUrl : new(baseUrl.AbsoluteUri + "/");
+
+#if NETSTANDARD2_0
+        return !string.IsNullOrWhiteSpace(assembled) ? new(usingBaseUri, assembled, true) : baseUrl;
+#else
+        return !string.IsNullOrWhiteSpace(assembled) ? new(usingBaseUri, assembled) : baseUrl;
+#endif
+    }
+
+    public static Uri AddQueryString(this Uri uri, string? query) {
+        if (query == null) return uri;
+
+        var builder = new UriBuilder(uri);
+        builder.Query = builder.Query.Length > 1 ? $"{builder.Query[1..]}&{query}" : query;
+
+        return builder.Uri;
+    }
+
+    public static UrlSegmentParamsValues GetUrlSegmentParamsValues(
+        this Uri?                     baseUri,
+        string                        resource,
+        Func<string, string>          encode,
+        params ParametersCollection[] parametersCollections
+    ) {
+        var assembled = baseUri == null ? "" : resource;
+#if NETSTANDARD2_0
+        var baseUrl = baseUri ?? new Uri(resource, true);
+#else
+        var baseUrl = baseUri ?? new Uri(resource);
+#endif
+
+        var hasResource = !assembled.IsEmpty();
+
+        var parameters = parametersCollections.SelectMany(x => x.GetParameters<UrlSegmentParameter>());
+
+        var builder = new UriBuilder(baseUrl);
+
+        foreach (var parameter in parameters) {
+            var paramPlaceHolder = $"{{{parameter.Name}}}";
+            var value            = Ensure.NotNull(parameter.Value!.ToString(), $"URL segment parameter {parameter.Name} value");
+            var paramValue       = parameter.Encode ? encode(value) : value;
+
+            if (hasResource) assembled = assembled.Replace(paramPlaceHolder, paramValue);
+
+            builder.Path = builder.Path.UrlDecode().Replace(paramPlaceHolder, paramValue);
+        }
+
+        return new(builder.Uri, assembled);
+    }
+}
+
+record UrlSegmentParamsValues(Uri Uri, string Resource);

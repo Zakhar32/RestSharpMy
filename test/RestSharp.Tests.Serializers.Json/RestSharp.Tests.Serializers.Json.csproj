@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="$(RepoRoot)\src\RestSharp.Serializers.NewtonsoftJson\RestSharp.Serializers.NewtonsoftJson.csproj"/>
+        <ProjectReference Include="$(RepoRoot)\src\RestSharp\RestSharp.csproj"/>
+        <ProjectReference Include="..\RestSharp.Tests.Shared\RestSharp.Tests.Shared.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="WireMock.Net" />
+    </ItemGroup>
+    <ItemGroup>
+        <Using Include="WireMock"/>
+        <Using Include="WireMock.Server"/>
+        <Using Include="WireMock.RequestBuilders"/>
+        <Using Include="WireMock.ResponseBuilders"/>
+    </ItemGroup>
+</Project>
