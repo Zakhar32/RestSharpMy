@@ -113,4 +113,13 @@ public static class MigrationDiagnostics {
         DiagnosticSeverity.Info,
         "NTLM authentication is configured through RestClientOptions.UseDefaultCredentials or RestClientOptions.Credentials, which feed the underlying HttpClientHandler."
     );
+
+    // RSM009 — synchronous Execute family wraps the async API with a blocking call; prefer ExecuteAsync.
+    public static readonly DiagnosticDescriptor SynchronousExecute = Rule(
+        "RSM009",
+        "Prefer the asynchronous Execute API",
+        "'{0}' is a synchronous (sync-over-async) call; prefer 'await {1}'",
+        DiagnosticSeverity.Warning,
+        "RestSharp's synchronous Execute methods block on the async API via AsyncHelpers.RunSync, which can deadlock and scales poorly. The async ExecuteAsync family is the recommended way to make requests."
+    );
 }

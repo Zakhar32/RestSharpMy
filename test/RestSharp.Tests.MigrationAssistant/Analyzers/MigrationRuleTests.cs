@@ -22,7 +22,8 @@ namespace RestSharp.Tests.MigrationAssistant.Analyzers;
 
 public class MigrationRuleTests {
     static DiagnosticAnalyzer[] AllAnalyzers => [
-        new RemovedInterfaceAnalyzer(), new BodyParameterAnalyzer(), new RedundantHeaderAnalyzer(), new NtlmAuthenticatorAnalyzer()
+        new RemovedInterfaceAnalyzer(), new BodyParameterAnalyzer(), new RedundantHeaderAnalyzer(),
+        new NtlmAuthenticatorAnalyzer(), new SyncExecuteAnalyzer()
     ];
 
     // -------- RSM001/002/003: removed interfaces --------

@@ -17,56 +17,29 @@ using RestSharp;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
+using static RestSharp.Tests.MigrationAssistant.Behavioral.RequestCapture;
 
 namespace RestSharp.Tests.MigrationAssistant.Behavioral;
 
 /// <summary>
-/// Proves that the body and header rewrites do not change the HTTP request that RestSharp actually sends. Each test
-/// builds the legacy form and the migrated form with the modern RestSharp API, sends both against a live WireMock
-/// server, and compares the captured outgoing request.
+/// Proves that the body and header rewrites do not change the HTTP request that RestSharp actually sends, across JSON
+/// and XML payloads (multipart is covered by <see cref="MultipartEquivalenceTests"/>). Each test builds the legacy form
+/// and the migrated form with the modern RestSharp API, sends both against a live WireMock server, and compares the
+/// captured outgoing request.
 /// </summary>
 public class EquivalenceTests {
     const string JsonString = """{"a":1}""";
+    const string XmlString  = "<a>1</a>";
 
-    class Captured {
-        public string Url         { get; set; }
-        public string Body        { get; set; }
-        public string ContentType { get; set; }
-        public string Accept      { get; set; }
-    }
-
-    static async Task<Captured> CaptureAsync(Action<RestRequest> configure) {
-        using var server   = WireMockServer.Start();
-        var       captured = new Captured();
-
-        server
-            .Given(
-                Request.Create()
-                    .WithPath("/resource")
-                    .WithUrl(url => { captured.Url = new Uri(url).PathAndQuery; return true; })
-                    .WithBody(body => { captured.Body = body; return true; })
-                    .WithHeader(headers => {
-                        if (headers.TryGetValue("Content-Type", out var contentType)) captured.ContentType = contentType[0];
-                        if (headers.TryGetValue("Accept", out var accept)) captured.Accept = accept[0];
-                        return true;
-                    })
-                    .UsingAnyMethod()
-            )
-            .RespondWith(Response.Create().WithStatusCode(200).WithBody("{}"));
-
-        using var client  = new RestClient(server.Url!);
-        var       request = new RestRequest("/resource", Method.Post);
-        configure(request);
-        await client.ExecuteAsync(request);
-
-        return captured;
-    }
-
-    // RSM004: AddParameter(contentType, value, ParameterType.RequestBody) == AddBody(value, contentType)
-    [Fact]
-    public async Task RSM004_AddParameter_RequestBody_is_equivalent_to_AddBody() {
-        var legacy   = await CaptureAsync(r => r.AddParameter("application/json", JsonString, ParameterType.RequestBody));
-        var migrated = await CaptureAsync(r => r.AddBody(JsonString, "application/json"));
+    // RSM004: AddParameter(contentType, value, ParameterType.RequestBody) == AddBody(value, contentType), for any
+    // string-literal content type. The synchronous AddBodyParameter the legacy call routes through is literally
+    // AddBody(value, name) when the name is a content type, so the two are byte-for-byte identical.
+    [Theory]
+    [InlineData("application/json", JsonString)]
+    [InlineData("application/xml", XmlString)]
+    public async Task RSM004_AddParameter_RequestBody_is_equivalent_to_AddBody(string contentType, string body) {
+        var legacy   = await CaptureAsync(r => r.AddParameter(contentType, body, ParameterType.RequestBody));
+        var migrated = await CaptureAsync(r => r.AddBody(body, contentType));
 
         migrated.Body.Should().Be(legacy.Body);
         migrated.ContentType.Should().Be(legacy.ContentType);
@@ -97,6 +70,19 @@ public class EquivalenceTests {
         migrated.ContentType.Should().StartWith("application/json");
     }
 
+    // RSM006 (XML): the same guarantee holds for an XML body — the parts are unchanged and the request still declares
+    // an XML content type after the redundant header is removed.
+    [Fact]
+    public async Task RSM006_removing_redundant_content_type_header_keeps_an_xml_body() {
+        var legacy   = await CaptureAsync(r => { r.AddStringBody(XmlString, DataFormat.Xml); r.AddHeader("Content-Type", "application/xml"); });
+        var migrated = await CaptureAsync(r => r.AddStringBody(XmlString, DataFormat.Xml));
+
+        migrated.Body.Should().Be(legacy.Body);
+        migrated.Url.Should().Be(legacy.Url);
+        legacy.ContentType.Should().Contain("xml");
+        migrated.ContentType.Should().Contain("xml");
+    }
+
     // RSM007: removing a manual Accept header leaves the payload (method, URL, body, content type) unchanged. The
     // explicit Accept value is replaced by RestSharp's serializer-derived Accept; both still negotiate JSON.
     [Fact]
@@ -109,5 +95,23 @@ public class EquivalenceTests {
         migrated.Url.Should().Be(legacy.Url);
         legacy.Accept.Should().Contain("json");
         migrated.Accept.Should().Contain("json");
+    }
+
+    // RSM009: the synchronous Execute is a blocking wrapper over ExecuteAsync, so both produce the same response.
+    [Fact]
+    public async Task RSM009_sync_Execute_and_async_ExecuteAsync_return_the_same_response() {
+        using var server = WireMockServer.Start();
+        server
+            .Given(Request.Create().WithPath("/resource"))
+            .RespondWith(Response.Create().WithStatusCode(201).WithBody("hello"));
+
+        using var client = new RestClient(server.Url!);
+
+        var sync  = client.Execute(new RestRequest("/resource"));
+        var async = await client.ExecuteAsync(new RestRequest("/resource"));
+
+        async.StatusCode.Should().Be(sync.StatusCode);
+        async.Content.Should().Be(sync.Content);
+        async.IsSuccessful.Should().Be(sync.IsSuccessful);
     }
 }
