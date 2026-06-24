@@ -10,7 +10,15 @@
                           ReferenceOutputAssembly="true" OutputItemType="" />
         <!-- Modern RestSharp: used for semantic-rule fixtures and the behavioural-equivalence harness. -->
         <ProjectReference Include="..\..\src\RestSharp\RestSharp.csproj" />
+        <!-- The CLI tool's report/catalog logic (net10 only, to keep its MSBuild deps off the other TFMs). -->
+        <ProjectReference Include="..\..\migration\RestSharp.MigrationAssistant.Tool\RestSharp.MigrationAssistant.Tool.csproj"
+                          Condition="'$(TargetFramework)' == 'net10.0'" />
     </ItemGroup>
+
+    <!-- Audit only direct dependencies; the tool pulls MSBuild transitively (loaded from the SDK at runtime). -->
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <NuGetAuditMode>direct</NuGetAuditMode>
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />

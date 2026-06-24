@@ -40,6 +40,9 @@
     <Project Path="migration/RestSharp.MigrationAssistant.Sample/RestSharp.MigrationAssistant.Sample.csproj">
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
     </Project>
+    <Project Path="migration/RestSharp.MigrationAssistant.Tool/RestSharp.MigrationAssistant.Tool.csproj">
+      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
+    </Project>
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="test/RestSharp.InteractiveTests/RestSharp.InteractiveTests.csproj">

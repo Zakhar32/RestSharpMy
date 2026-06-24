@@ -80,6 +80,47 @@ From the command line, run the formatter to apply the code fixes in bulk:
 dotnet format analyzers --diagnostics RSM001 RSM002 RSM004 RSM005 RSM006 RSM007
 ```
 
+## Project-wide migration (CLI)
+
+For solution-wide, non-interactive migration with a report, use the companion .NET tool:
+
+```shell
+dotnet tool install --global RestSharp.MigrationAssistant.Tool
+dotnet restore-migration path/to/YourSolution.sln
+```
+
+It loads the solution (or `.csproj`/directory) with MSBuild, runs every RSM rule, applies the available fixes across
+all targeted projects in one pass, and writes `migration-report.md`. Options:
+
+```shell
+dotnet restore-migration <path> [--report <file>] [--dry-run]
+```
+
+- `--dry-run` analyses and writes the report without modifying any files — run this first to preview the changes.
+- `--report <file>` sets the report path (default `migration-report.md`).
+
+The report contains a per-rule summary, every applied fix with its confidence level, and a **Manual actions required**
+section listing the usages that have no automatic fix (or were intentionally left for review):
+
+```markdown
+## Summary by rule
+| Rule | Found | Auto-fixed | Manual | Confidence |
+|------|-------|------------|--------|------------|
+| RSM001 | 15 | 15 | 0 | High |
+| RSM004 |  7 |  7 | 0 | High |
+| RSM006 |  8 |  8 | 0 | Medium |
+| RSM008 |  3 |  0 | 3 | Manual |
+
+## Manual actions required
+- `RSM008` Api.cs:193 — 'NtlmAuthenticator' was removed ...
+  - _Action:_ Configure NTLM via RestClientOptions.UseDefaultCredentials or RestClientOptions.Credentials.
+```
+
+Confidence levels: **High** = proven byte-for-byte identical HTTP (RSM001/002/004/005); **Medium** = payload preserved
+but a secondary aspect changes by design, so review (RSM006/007/009); **Manual** = no automatic fix (RSM003/008).
+
+Always run the tool on a clean working tree (or with `--dry-run` first) and review the diff before committing.
+
 ## Behavioural-equivalence guarantee
 
 The body and header rewrites are backed by a behavioural-equivalence test suite: each rule's legacy form and migrated
@@ -114,7 +155,5 @@ is what each rule guarantees:
 
 The rule set is intentionally focused and extensible. Planned follow-ups:
 
-- A standalone CLI migrator (built on `MSBuildWorkspace`) for solution-wide, non-interactive migration. Until then,
-  `dotnet format analyzers` and the IDE "Fix all" command cover bulk application.
 - Additional rules, e.g. legacy `RestSharp` XML serializers → `RestSharp.Serializers.Xml`, and the synchronous
   `Get`/`Post`/`Delete` wrappers (RSM009 currently covers the `Execute` family).
