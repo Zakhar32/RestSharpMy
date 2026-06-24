@@ -40,6 +40,8 @@ package's consumers:
 | `RSM007` | redundant `AddHeader("Accept", …)` | remove the call | ✅ |
 | `RSM008` | `new NtlmAuthenticator(...)` | `RestClientOptions.UseDefaultCredentials` / `Credentials` | — |
 | `RSM009` | synchronous `Execute` / `Execute<T>` | `await ExecuteAsync` / `await ExecuteAsync<T>` | ✅ (inside `async`) |
+| `RSM010` | `[SerializeAs]` / `[DeserializeAs]` (`Name`) | `[JsonPropertyName]` / `[JsonProperty]` | ✅ (Name-only) |
+| `RSM011` | legacy + modern serialization attribute on one member | keep one | — |
 
 ### Examples
 
@@ -67,7 +69,35 @@ request.AddHeader("Accept", "application/json");          // removed
 var response = client.Execute(request);
 // becomes
 var response = await client.ExecuteAsync(request);
+
+// RSM010 — a matching serialize/deserialize pair collapses to one JSON attribute
+[SerializeAs(Name = "product_id")]
+[DeserializeAs(Name = "product_id")]
+public int Id { get; set; }
+// becomes (fully qualified so it compiles without a new using; simplify with your IDE)
+[System.Text.Json.Serialization.JsonPropertyName("product_id")]
+public int Id { get; set; }
 ```
+
+### Serialization attributes (RSM010 / RSM011) — important caveat
+
+`[SerializeAs]` and `[DeserializeAs]` were **not removed** in v107 — they moved to the **`RestSharp.Serializers.Xml`**
+package (namespace `RestSharp.Serializers`) and **only affect XML serialization**; the JSON serializer ignores them. So:
+
+- If you still serialize to **XML**, reference `RestSharp.Serializers.Xml` and keep the attributes — there is nothing to
+  rewrite. RSM010 is reported as `Info` precisely because it is a *conditional* recommendation.
+- If you moved to **JSON** (the v107 default), map the attribute's `Name` to `[JsonPropertyName]` (System.Text.Json) or
+  `[JsonProperty]` (Newtonsoft) — the assistant picks whichever is referenced.
+
+The auto-fix is applied **only** when it is unambiguous: a string-literal `Name`, matching serialize/deserialize names,
+and no XML-only options. It is **withheld** (reported for manual action) when:
+
+- an XML-only option is set (`Attribute`, `Content`, `Index`, `NameStyle`, `Culture`) — these have no JSON equivalent;
+- the serialize and deserialize names differ — a single JSON attribute cannot express an asymmetric rename;
+- **RSM011** — the member already carries a modern JSON attribute, so the two serializers would disagree.
+
+This migration intentionally *changes* JSON behaviour (the legacy attribute had no JSON effect), so there is no
+behavioural-equivalence test for it, unlike the body and header rules below.
 
 ## Applying the fixes
 

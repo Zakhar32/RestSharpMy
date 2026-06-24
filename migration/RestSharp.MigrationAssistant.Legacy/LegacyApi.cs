@@ -100,3 +100,24 @@ namespace RestSharp.Authenticators {
         public NtlmAuthenticator(string username, string password) { }
     }
 }
+
+namespace RestSharp.Serializers {
+    public enum NameStyle { AsIs, CamelCase, PascalCase, LowerCase }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, Inherited = false)]
+    public sealed class SerializeAsAttribute : Attribute {
+        public string                   Name      { get; set; }
+        public bool                     Attribute { get; set; }
+        public bool                     Content   { get; set; }
+        public System.Globalization.CultureInfo Culture { get; set; }
+        public NameStyle                NameStyle { get; set; }
+        public int                      Index     { get; set; }
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, Inherited = false)]
+    public sealed class DeserializeAsAttribute : Attribute {
+        public string Name      { get; set; }
+        public bool   Attribute { get; set; }
+        public bool   Content   { get; set; }
+    }
+}

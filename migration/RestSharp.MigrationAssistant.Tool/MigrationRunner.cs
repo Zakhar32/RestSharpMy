@@ -103,8 +103,13 @@ public static class MigrationRunner {
                     ? await TryComputeFixAsync(document, diagnostic, fixer)
                     : null;
 
-                if (fixChanges is { Length: > 0 } && !Overlaps(changes, fixChanges)) {
-                    changes.AddRange(fixChanges);
+                if (fixChanges is { Length: > 0 } && !ConflictsWith(changes, fixChanges)) {
+                    // A holistic fix (e.g. SerializeAs + DeserializeAs) can be produced identically by two diagnostics;
+                    // add only the changes not already present so both are counted as applied without duplicating edits.
+                    foreach (var change in fixChanges) {
+                        if (!changes.Any(existing => existing.Span == change.Span && existing.NewText == change.NewText)) changes.Add(change);
+                    }
+
                     report.Applied.Add(new AppliedFix(diagnostic.Id, file, line, diagnostic.GetMessage(), info.Confidence));
                 }
                 else {
@@ -138,8 +143,9 @@ public static class MigrationRunner {
         return [..await changedDocument.GetTextChangesAsync(document)];
     }
 
-    static bool Overlaps(List<TextChange> existing, TextChange[] candidate)
-        => candidate.Any(c => existing.Any(e => c.Span.OverlapsWith(e.Span)));
+    // A candidate conflicts only if it overlaps an existing change it is not identical to (identical changes are deduped).
+    static bool ConflictsWith(List<TextChange> existing, TextChange[] candidate)
+        => candidate.Any(c => existing.Any(e => e.Span.OverlapsWith(c.Span) && !(e.Span == c.Span && e.NewText == c.NewText)));
 
     static async Task<(Solution Solution, IReadOnlyList<ProjectId> Targets)> LoadAsync(MSBuildWorkspace workspace, string path) {
         var full = Path.GetFullPath(path);

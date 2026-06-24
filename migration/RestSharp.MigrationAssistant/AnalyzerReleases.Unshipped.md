@@ -14,3 +14,5 @@ RSM006  | RestSharp.Migration | Warning | Redundant Content-Type header
 RSM007  | RestSharp.Migration | Warning | Redundant Accept header
 RSM008  | RestSharp.Migration | Info    | NtlmAuthenticator was removed; use RestClientOptions
 RSM009  | RestSharp.Migration | Warning | Synchronous Execute; prefer await ExecuteAsync
+RSM010  | RestSharp.Migration | Info    | SerializeAs/DeserializeAs -> JsonPropertyName/JsonProperty
+RSM011  | RestSharp.Migration | Warning | Legacy and modern serialization attributes conflict

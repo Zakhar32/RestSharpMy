@@ -122,4 +122,22 @@ public static class MigrationDiagnostics {
         DiagnosticSeverity.Warning,
         "RestSharp's synchronous Execute methods block on the async API via AsyncHelpers.RunSync, which can deadlock and scales poorly. The async ExecuteAsync family is the recommended way to make requests."
     );
+
+    // RSM010 — SerializeAs/DeserializeAs only affect XML serialization; map the name to a JSON attribute for JSON.
+    public static readonly DiagnosticDescriptor SerializationAttribute = Rule(
+        "RSM010",
+        "Legacy serialization attribute",
+        "'{0}' only controls XML serialization; for JSON, map its name to '{1}' (or reference RestSharp.Serializers.Xml to keep XML)",
+        DiagnosticSeverity.Info,
+        "SerializeAs and DeserializeAs were moved to the RestSharp.Serializers.Xml package and only affect the XML serializer. For the default JSON serializer use JsonPropertyName (System.Text.Json) or JsonProperty (Newtonsoft.Json). XML-specific options (Attribute, Content, Index, NameStyle, Culture) have no JSON equivalent."
+    );
+
+    // RSM011 — a member carries both legacy and modern serialization attributes.
+    public static readonly DiagnosticDescriptor SerializationAttributeConflict = Rule(
+        "RSM011",
+        "Conflicting serialization attributes",
+        "'{0}' is combined with a modern JSON attribute on the same member; the XML and JSON serializers will use different names — keep only the one that applies",
+        DiagnosticSeverity.Warning,
+        "A member carries both a legacy RestSharp serialization attribute (SerializeAs/DeserializeAs) and a modern JSON attribute (JsonPropertyName/JsonProperty). The two serializers will disagree about the name. Remove whichever does not apply to the serializer you use."
+    );
 }

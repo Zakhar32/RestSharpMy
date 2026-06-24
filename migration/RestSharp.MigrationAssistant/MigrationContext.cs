@@ -35,6 +35,17 @@ static class MigrationContext {
         return IsQualifiedWithRestSharp(name) || HasRestSharpUsing(name.SyntaxTree);
     }
 
+    /// <summary>
+    /// Returns true when <paramref name="attribute"/> is a RestSharp attribute. The constructor symbol's containing type
+    /// is checked when it binds (the attribute may live in RestSharp.Serializers.Xml); otherwise the file is required to
+    /// import or qualify the RestSharp namespace.
+    /// </summary>
+    public static bool IsRestSharpAttribute(SemanticModel model, AttributeSyntax attribute, CancellationToken ct) {
+        if (model.GetSymbolInfo(attribute, ct).Symbol?.ContainingType is { } type) return IsInRestSharp(type);
+
+        return IsQualifiedWithRestSharp(attribute.Name) || HasRestSharpUsing(attribute.SyntaxTree);
+    }
+
     /// <summary>Returns true if the symbol is declared anywhere under the <c>RestSharp</c> namespace.</summary>
     public static bool IsInRestSharp(ISymbol? symbol) => symbol is { } && IsInRestSharp(GetNamespace(symbol));
 

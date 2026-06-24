@@ -42,7 +42,9 @@ public static class RuleCatalog {
         new("RSM006", Confidence.Medium, "Remove the redundant Content-Type header; RestSharp sets it from the body. Confirm you did not intend a non-default content type."),
         new("RSM007", Confidence.Medium, "Remove the redundant Accept header; RestSharp sets it from the registered serializers. Confirm you did not intend a non-default Accept value."),
         new("RSM008", Confidence.Manual, "'NtlmAuthenticator' was removed. Configure NTLM via RestClientOptions.UseDefaultCredentials or RestClientOptions.Credentials."),
-        new("RSM009", Confidence.Medium, "Convert the synchronous Execute call to 'await ExecuteAsync'. Make the enclosing method async (Task-returning) first, then re-run the tool to apply it.")
+        new("RSM009", Confidence.Medium, "Convert the synchronous Execute call to 'await ExecuteAsync'. Make the enclosing method async (Task-returning) first, then re-run the tool to apply it."),
+        new("RSM010", Confidence.Medium, "SerializeAs/DeserializeAs only affect XML. For JSON, map the Name to JsonPropertyName/JsonProperty. XML-only options (Attribute, Content, Index, NameStyle, Culture) and mismatched serialize/deserialize names have no single JSON equivalent — migrate by hand, or keep XML by referencing RestSharp.Serializers.Xml."),
+        new("RSM011", Confidence.Manual, "A member carries both a legacy and a modern serialization attribute. Remove whichever does not apply to the serializer you use.")
     }.ToDictionary(r => r.Id);
 
     public static RuleInfo For(string id)

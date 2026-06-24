@@ -25,6 +25,8 @@ to see the diagnostics, and use the IDE's "Fix all occurrences" or `dotnet forma
 | RSM007 | redundant `AddHeader("Accept", …)` | remove | yes |
 | RSM008 | `new NtlmAuthenticator(...)` | `RestClientOptions.UseDefaultCredentials` / `Credentials` | no |
 | RSM009 | synchronous `Execute` / `Execute<T>` | `await ExecuteAsync` / `await ExecuteAsync<T>` | yes (inside `async`) |
+| RSM010 | `[SerializeAs]` / `[DeserializeAs]` (XML-only) | `[JsonPropertyName]` / `[JsonProperty]` | yes (Name-only) |
+| RSM011 | legacy + modern serialization attribute on one member | keep one | no |
 
 The body and header rewrites are validated by a behavioural-equivalence test suite that runs the legacy and the
 migrated form against a live test server and asserts the outgoing HTTP request is byte-for-byte identical.
