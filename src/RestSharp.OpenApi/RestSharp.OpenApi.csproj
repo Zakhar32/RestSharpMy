@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+        RestSharp.OpenApi turns RestSharp into a strongly-typed API gateway by generating
+        runtime proxies and types from an OpenAPI (Swagger) document.
+
+        Target framework choice (documented tradeoff):
+        The library targets netstandard2.0 plus the modern .NET versions that RestSharp core
+        ships. We deliberately do NOT add explicit net471/net48 targets here (unlike core) so
+        the build stays self-contained; .NET Framework 4.6.1+ consumers are still supported
+        through the netstandard2.0 asset. System.Reflection.Emit / DispatchProxy are referenced
+        as packages only on netstandard2.0 - they are part of the platform on modern .NET and
+        .NET Framework, so the package assets are used purely to satisfy the netstandard2.0
+        compile.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+        <Description>Runtime OpenAPI (Swagger) client generator for RestSharp. Generate strongly-typed API proxies and CLR types from an OpenAPI document at runtime.</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\RestSharp\RestSharp.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Using Include="RestSharp"/>
+    </ItemGroup>
+    <!--
+        On netstandard2.0 System.Text.Json, DispatchProxy and Reflection.Emit are not part of
+        the reference assemblies. AddPolyfills/Nullable come from src/Directory.Build.props.
+    -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <PackageReference Include="System.Text.Json"/>
+        <PackageReference Include="System.Reflection.DispatchProxy"/>
+        <PackageReference Include="System.Reflection.Emit"/>
+        <PackageReference Include="System.Reflection.Emit.Lightweight"/>
+        <PackageReference Include="Nullable" PrivateAssets="All"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+</Project>

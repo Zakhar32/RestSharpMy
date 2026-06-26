@@ -14,6 +14,11 @@
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
     </Project>
   </Folder>
+  <Folder Name="/OpenApi/">
+    <Project Path="src/RestSharp.OpenApi/RestSharp.OpenApi.csproj">
+      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
+    </Project>
+  </Folder>
   <Folder Name="/Serializers/">
     <Project Path="src/RestSharp.Serializers.CsvHelper/RestSharp.Serializers.CsvHelper.csproj">
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
@@ -38,6 +43,9 @@
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
     </Project>
     <Project Path="test/RestSharp.Tests.Integrated/RestSharp.Tests.Integrated.csproj">
+      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
+    </Project>
+    <Project Path="test/RestSharp.Tests.OpenApi/RestSharp.Tests.OpenApi.csproj">
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
     </Project>
     <Project Path="test/RestSharp.Tests.Serializers.Csv/RestSharp.Tests.Serializers.Csv.csproj">

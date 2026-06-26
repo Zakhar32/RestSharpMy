@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+        Tests run on modern .NET in this repo's CI image. The library itself multi-targets down to
+        netstandard2.0; the netstandard2.0 Reflection.Emit/DispatchProxy package assets are type-forwards
+        to the in-box implementations, so the runtime behaviour exercised here is identical across TFMs.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="WireMock.Net"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\RestSharp.OpenApi\RestSharp.OpenApi.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Using Include="RestSharp"/>
+        <Using Include="RestSharp.OpenApi"/>
+        <Using Include="WireMock.Server"/>
+        <Using Include="WireMock.RequestBuilders"/>
+        <Using Include="WireMock.ResponseBuilders"/>
+    </ItemGroup>
+</Project>

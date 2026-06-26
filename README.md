@@ -35,6 +35,7 @@ Check [v107+ docs](https://restsharp.dev/v107) for more information.
 | `RestSharp.Serializers.NewtonsoftJson` | Use `Newtonsoft.Json` as a JSON serializer                                           |
 | `RestSharp.Serializers.Xml`            | Use custom RestSharp XML serializer for XML                                          |
 | `RestSharp.Serializers.CsvHelper`      | Use `CsvHelper` as a CSV serializer                                                  |
+| `RestSharp.OpenApi`                    | Generate strongly-typed API clients from an OpenAPI (Swagger) document at runtime    |
 
 ## Code of Conduct
 
