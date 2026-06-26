@@ -30,20 +30,6 @@
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
     </Project>
   </Folder>
-  <Folder Name="/MigrationAssistant/">
-    <Project Path="migration/RestSharp.MigrationAssistant/RestSharp.MigrationAssistant.csproj">
-      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
-    </Project>
-    <Project Path="migration/RestSharp.MigrationAssistant.Legacy/RestSharp.MigrationAssistant.Legacy.csproj">
-      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
-    </Project>
-    <Project Path="migration/RestSharp.MigrationAssistant.Sample/RestSharp.MigrationAssistant.Sample.csproj">
-      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
-    </Project>
-    <Project Path="migration/RestSharp.MigrationAssistant.Tool/RestSharp.MigrationAssistant.Tool.csproj">
-      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
-    </Project>
-  </Folder>
   <Folder Name="/Tests/">
     <Project Path="test/RestSharp.InteractiveTests/RestSharp.InteractiveTests.csproj">
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
@@ -67,9 +53,6 @@
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
     </Project>
     <Project Path="test/RestSharp.Tests/RestSharp.Tests.csproj">
-      <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
-    </Project>
-    <Project Path="test/RestSharp.Tests.MigrationAssistant/RestSharp.Tests.MigrationAssistant.csproj">
       <BuildType Solution="Debug.Appveyor|*" Project="Debug" />
     </Project>
   </Folder>
