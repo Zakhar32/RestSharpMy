@@ -18,7 +18,7 @@
   <ItemGroup Label="Runtime dependencies">
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="CsvHelper" Version="33.0.1" />
+    <PackageVersion Include="CsvHelper" Version="33.1.0" />
     <PackageVersion Include="System.Text.Json" Version="$(SystemTextJsonVer)" />
     <!-- Used by RestSharp.OpenApi on netstandard2.0 where these types are not in-box.
          On modern .NET and .NET Framework 4.7.1+ they are part of the platform. -->
